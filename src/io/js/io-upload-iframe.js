@@ -73,6 +73,7 @@ Y.mix(Y.IO.prototype, {
             o[i].type = 'hidden';
             o[i].name = _d(m[i].substring(m[i].lastIndexOf('&') + 1));
             o[i].value = (i + 1 === l) ? _d(m[i + 1]) : _d(m[i + 1].substring(0, (m[i + 1].lastIndexOf('&'))));
+            o[i].setAttribute('data-type', 'config-data');
             f.appendChild(o[i]);
             Y.log('key: ' +  o[i].name + ' and value: ' + o[i].value + ' added as form data.', 'info', 'io');
         }
@@ -252,9 +253,6 @@ Y.mix(Y.IO.prototype, {
         // Start file upload.
         f.submit();
         io.start(o, c);
-        if (c.data) {
-            io._removeData(f, fields);
-        }
 
         return {
             id: o.id,
@@ -285,7 +283,7 @@ Y.mix(Y.IO.prototype, {
     },
 
     end: function(transaction, config) {
-        var form, io;
+        var form, io, addedDataInputs;
 
         if (config) {
             form = config.form;
@@ -300,6 +298,12 @@ Y.mix(Y.IO.prototype, {
                 if (form) {
                     io._resetAttrs(form, this._originalFormAttrs);
                 }
+            }
+
+            // Check to see if data was added onto the form and remove it
+            if (config.data) {
+             	  addedDataInputs = form.all('input[data-type="config-data"]')._nodes;
+             	  io._removeData(form, addedDataInputs);
             }
         }
 
